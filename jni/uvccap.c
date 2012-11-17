@@ -16,12 +16,45 @@
 #define LOGI(fmt, ...) __android_log_print(ANDROID_LOG_INFO,  LOG_TAG, fmt, ##__VA_ARGS__)
 #define LOGW(fmt, ...) __android_log_print(ANDROID_LOG_WARN,  LOG_TAG, fmt, ##__VA_ARGS__)
 
+#ifndef VIDIOC_ENUM_FRAMESIZES
+enum v4l2_frmsizetypes {
+    V4L2_FRMSIZE_TYPE_DISCRETE  = 1,
+    V4L2_FRMSIZE_TYPE_CONTINUOUS    = 2,
+    V4L2_FRMSIZE_TYPE_STEPWISE  = 3,
+};
+struct v4l2_frmsize_discrete {
+	__u32 width;
+	__u32 height;
+};
+struct v4l2_frmsize_stepwise {
+	__u32	min_width;
+	__u32	max_width;
+	__u32	step_width;
+	__u32	min_height;
+	__u32	max_height;
+	__u32	step_height;
+};
+struct v4l2_frmsizeenum {
+	__u32 index;
+	__u32 pixel_format;
+	__u32 type;
+	union {
+		struct v4l2_frmsize_discrete discrete;
+		struct v4l2_frmsize_stepwise stepwise;
+	};
+	__u32 reserved[2];
+};
+#define VIDIOC_ENUM_FRAMESIZES  _IOWR('V', 74, struct v4l2_frmsizeenum)
+#endif
+
 #include "uvccap.h"
+
+#define CASESTR(x) case x: return #x
 
 /* Data structure and constant values */
 #define DEF_PIXEL_FORMAT UVCC_PIX_FMT_YUYV
 
-static uint32_t const PIXEL_FORMATS[UVCC_PIX_FMT_COUNT + 1] = {
+static uvcc_pixel_format_t const PIXEL_FORMATS[UVCC_PIX_FMT_COUNT + 1] = {
 	V4L2_PIX_FMT_RGB565,
 	V4L2_PIX_FMT_RGB32,
 	V4L2_PIX_FMT_BGR32,
@@ -57,7 +90,8 @@ typedef struct video_dev_t_ {
 /* Internal APIs */
 static void print_capability(struct v4l2_capability const *caps);
 static void print_format_desc(struct v4l2_fmtdesc const *desc);
-static uint32_t to_v4l2_pixel_format(int format);
+static void print_frame_size(struct v4l2_frmsizeenum const *size);
+static uint32_t to_v4l2_pixel_format(uvcc_pixel_format_t format);
 static uint32_t from_v4l2_pixel_format(uint32_t format);
 static int init_buffer(video_dev_t *dev);
 static int read_frame(uint8_t * const buf, uint32_t buf_size, video_dev_t const *dev);
@@ -146,6 +180,38 @@ static void print_format_desc(struct v4l2_fmtdesc const *desc) {
 	LOGI("  pixelformat : %c%c%c%c\n", name.name[0], name.name[1], name.name[2], name.name[3]);
 }
 
+static char const *to_v4l2_frmsizetype(__u32 type)
+{
+	switch (type) {
+	CASESTR(V4L2_FRMSIZE_TYPE_DISCRETE);
+	CASESTR(V4L2_FRMSIZE_TYPE_CONTINUOUS);
+	CASESTR(V4L2_FRMSIZE_TYPE_STEPWISE);
+	}
+	return "V4L2_FRMSIZE_TYPE_UNKNOWN";
+}
+
+static void print_frame_size(struct v4l2_frmsizeenum const *size)
+{
+	pixel_format_name_t name = { size->pixel_format };
+
+	LOGI("Enumerated frame size...\n");
+	LOGI("  index       : %u\n", size->index);
+	LOGI("  pixelformat : %c%c%c%c\n", name.name[0], name.name[1], name.name[2], name.name[3]);
+	LOGI("  type        : %s\n", to_v4l2_frmsizetype(size->type));
+	if (V4L2_FRMSIZE_TYPE_DISCRETE == size->type) {
+	LOGI("  width       : %u\n", size->discrete.width);
+	LOGD("  height      : %u\n", size->discrete.height);
+	}
+	if (V4L2_FRMSIZE_TYPE_STEPWISE == size->type) {
+	LOGI("  min_width   : %u\n", size->stepwise.min_width);
+	LOGI("  max_width   : %u\n", size->stepwise.max_width);
+	LOGI("  step_width  : %u\n", size->stepwise.step_width);
+	LOGI("  min_height  : %u\n", size->stepwise.min_height);
+	LOGI("  max_height  : %u\n", size->stepwise.max_height);
+	LOGI("  step_height : %u\n", size->stepwise.step_height);
+	}
+}
+
 static void print_pixel_format(struct v4l2_pix_format const *fmt) {
 	pixel_format_name_t name = { fmt->pixelformat };
 	LOGI("Pixel format...\n");
@@ -158,7 +224,7 @@ static void print_pixel_format(struct v4l2_pix_format const *fmt) {
 	LOGI("  private      : %u\n", fmt->priv);
 }
 
-static uint32_t to_v4l2_pixel_format(int format) {
+static uint32_t to_v4l2_pixel_format(uvcc_pixel_format_t format) {
 	if (format >= UVCC_PIX_FMT_COUNT) {
 		return PIXEL_FORMATS[DEF_PIXEL_FORMAT];
 	}	
@@ -379,7 +445,7 @@ void uvcc_close_video_device(uvcc_handle_t handle) {
 	dev->fd = -1;
 }
 
-int uvcc_init_video_device(uvcc_handle_t handle, uint32_t width, uint32_t height, uint32_t pixel_format) {
+int uvcc_init_video_device(uvcc_handle_t handle, uint32_t width, uint32_t height, uvcc_pixel_format_t pixel_format) {
 	struct v4l2_format fmt;
 	video_dev_t *dev = (video_dev_t*)handle;
 
@@ -598,5 +664,51 @@ uint32_t uvcc_get_pixel_format(uvcc_handle_t handle) {
 		return -1;
 	}
 	return from_v4l2_pixel_format(dev->format.fmt.pix.pixelformat);
+}
+
+int uvcc_enum_preview_size(uvcc_handle_t handle, int index, uvcc_pixel_format_t pixel_format, uvcc_preview_size_t *size)
+{
+	video_dev_t const *dev = (video_dev_t const*)handle;
+	int err = 0;
+	struct v4l2_frmsizeenum frmsize;
+
+	if (NULL == dev) {
+		return INVALID_ARGUMENTS;
+	}
+
+	memset(&frmsize, 0, sizeof(frmsize));
+
+	frmsize.index = index;
+	frmsize.pixel_format = to_v4l2_pixel_format(pixel_format);
+	if (0 != ioctl(dev->fd, VIDIOC_ENUM_FRAMESIZES, &frmsize)) {
+		err = errno;
+		LOGW("Cannot enumerate framesize (index:%d) (%s).", index, strerror(err));
+		switch (err) {
+		case EBADF:
+		case EFAULT:
+			return INVALID_ARGUMENTS;
+		case EINVAL:
+			return NO_MORE_DATA;
+		case EBUSY:
+			return VIDEO_DEVICE_BUSY;
+		case ENOMEM:
+			return INSUFFICIENT_MEMORY;
+		case EPERM:
+			return NOT_PERMITTED;
+		default:
+			return IO_ERROR;
+		}
+	}
+
+	print_frame_size(&frmsize);
+
+	if (V4L2_FRMSIZE_TYPE_DISCRETE == frmsize.type) {
+		size->width  = frmsize.discrete.width;
+		size->height = frmsize.discrete.height;
+	} else {
+		return PREVIEW_SIZE_NOT_SUPPORTED;
+	}
+
+	return NOERROR;
 }
 

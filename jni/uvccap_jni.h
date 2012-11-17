@@ -87,6 +87,14 @@ JNIEXPORT void JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1start
 JNIEXPORT void JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1stop
   (JNIEnv *, jobject, jlong);
 
+/*
+ * Class:     crimsonwoods_android_libs_uvccap_UVCCamera
+ * Method:    n_enumFrameSize
+ * Signature: (JII)Lcrimsonwoods/android/libs/uvccap/UVCCamera/FrameSize;
+ */
+JNIEXPORT jobject JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1enumFrameSize
+  (JNIEnv *, jobject, jlong, jint, jint);
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,15 +1,14 @@
 package crimsonwoods.android.libs.uvccap;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UVCCamera {
 	private static final String DEVICE_PATH_PREFIX = "/dev/video";
 	private boolean isStarted = false;
 	private long nativeHandle = 0;
 	private final String devicePath;
-	private static final Map<Integer, UVCCamera> instanceMap = new HashMap<Integer, UVCCamera>();
 	
 	static {
 		System.loadLibrary("uvccap");
@@ -19,18 +18,10 @@ public class UVCCamera {
 		devicePath = device;
 	}
 	
-	public static UVCCamera open() {
-		return open(0);
-	}
-	
-	public static synchronized UVCCamera open(int index) {
-		if (0 > index) {
-			throw new IllegalArgumentException("'index' have to be set to zero or positive value.");
-		}
-		if (!instanceMap.containsKey(index)) {
-			instanceMap.put(index, new UVCCamera(DEVICE_PATH_PREFIX + index));
-		}
-		return instanceMap.get(index);
+	public static synchronized UVCCamera open(String devicePath) throws IOException {
+		final UVCCamera camera = new UVCCamera(devicePath);
+		camera.open();
+		return camera;
 	}
 	
 	@Override
@@ -38,8 +29,11 @@ public class UVCCamera {
 		release();
 	}
 	
-	public synchronized void init(int width, int height, PixelFormat format) throws IOException {
+	private synchronized void open() throws IOException {
 		nativeHandle = n_open(devicePath);
+	}
+	
+	public synchronized void init(int width, int height, PixelFormat format) throws IOException {
 		n_init(nativeHandle, width, height, format.value);
 	}
 	
@@ -83,6 +77,23 @@ public class UVCCamera {
 		return (seq[0] << 24) | (seq[1] << 16) | (seq[2] << 8) | seq[3];
 	}
 	
+	public List<FrameSize> getSupportedPreviewSizes(PixelFormat format) {
+		ArrayList<FrameSize> frameSizes = new ArrayList<FrameSize>();
+		for (int index = 0; ; ++index) {
+			final FrameSize size = n_enumFrameSize(nativeHandle, index, format.value);
+			if (null == size) {
+				break;
+			}
+			frameSizes.add(size);
+		}
+		return frameSizes;
+	}
+	
+	public static final class FrameSize {
+		public int width;
+		public int height;
+	}
+	
 	private native int n_getPixelFormat(long handle);
 	private native int n_getFrameSize(long handle);
 	private native int n_getWidth(long handle);
@@ -93,4 +104,5 @@ public class UVCCamera {
 	private native void n_capture(long handle, byte[] pixels);
 	private native void n_start(long handle);
 	private native void n_stop(long handle);
+	private native FrameSize n_enumFrameSize(long handle, int index, int pixelFormat);
 }

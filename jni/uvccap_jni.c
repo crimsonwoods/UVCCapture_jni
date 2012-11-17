@@ -164,6 +164,43 @@ JNIEXPORT void JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1stop
 	uvcc_stop_capture(TO_HANDLE(handle));
 }
 
+/*
+ * Class:     crimsonwoods_android_libs_uvccap_UVCCamera
+ * Method:    n_enumFrameSize
+ * Signature: (JII)Lcrimsonwoods/android/libs/uvccap/UVCCamera/FrameSize;
+ */
+JNIEXPORT jobject JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1enumFrameSize
+  (JNIEnv *env, jobject thiz, jlong handle, jint index, jint pixfmt)
+{
+	uvcc_preview_size_t size;
+	int const err = uvcc_enum_preview_size(TO_HANDLE(handle), index, pixfmt, &size);
+	if (err != NOERROR) {
+		return NULL;
+	}
+	jclass cls = (*env)->FindClass(env, "crimsonwoods/android/libs/uvccap/UVCCamera$FrameSize");
+	if (NULL == cls) {
+		// ClassNotFoundException will throw by JVM.
+		return NULL;
+	}
+	jmethodID ctor = (*env)->GetMethodID(env, cls, "<init>", "()V");
+	if (NULL == ctor) {
+		(*env)->DeleteLocalRef(env, cls);
+		return NULL;
+	}
+	jfieldID field_w = (*env)->GetFieldID(env, cls, "width", "I");
+	jfieldID field_h = (*env)->GetFieldID(env, cls, "height", "I");
+	if (!field_w || !field_h) {
+		(*env)->DeleteLocalRef(env, cls);
+		return NULL;
+	}
+	jobject ret = (*env)->NewObject(env, cls, ctor);
+	if (NULL != ret) {
+		(*env)->SetIntField(env, ret, field_w, size.width);
+		(*env)->SetIntField(env, ret, field_h, size.height);
+	}
+	return ret;
+}
+
 static void throw_exception(JNIEnv *env, char const * const cls, char const * const message) {
 	jclass ioe_cls = (*env)->FindClass(env, cls);
 	if (NULL == ioe_cls) {
