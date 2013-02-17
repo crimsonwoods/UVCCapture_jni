@@ -1,4 +1,4 @@
-package crimsonwoods.android.libs.uvccap;
+package net.crimsonwoods.android.libs.uvccap;
 
 public enum PixelFormat{
 	RGB565(0),

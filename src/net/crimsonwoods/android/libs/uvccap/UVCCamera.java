@@ -1,4 +1,4 @@
-package crimsonwoods.android.libs.uvccap;
+package net.crimsonwoods.android.libs.uvccap;
 
 import java.io.IOException;
 import java.util.ArrayList;

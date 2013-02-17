@@ -7,11 +7,11 @@ static void throw_NullPointerException(JNIEnv *env, char const * const message);
 static uint32_t yuv2rgba(uint8_t y, uint8_t u, uint8_t v);
 
 /*
- * Class:     net_ubilabo_android_apps_uvccapture_ColorConverter
+ * Class:     net_crimsonwoods_android_libs_uvccap_ColorConverter
  * Method:    yuyvtorgb
  * Signature: ([I[BII)V
  */
-JNIEXPORT void JNICALL Java_net_ubilabo_android_apps_uvccapture_ColorConverter_yuyvtorgb
+JNIEXPORT void JNICALL Java_net_crimsonwoods_android_libs_uvccap_ColorConverter_yuyvtorgb
   (JNIEnv *env, jclass cls, jintArray rgba, jbyteArray yuyv, jint width, jint height)
 {
 	jbyte *yuyv_ptr = NULL;

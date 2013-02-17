@@ -13,55 +13,55 @@ static void throw_IOException(JNIEnv *env, char const * const message);
 #define TO_HANDLE(h) ((uvcc_handle_t)(intptr_t)h)
 
 /*
- * Class:     crimsonwoods_android_libs_uvccap_UVCCamera
+ * Class:     net_crimsonwoods_android_libs_uvccap_UVCCamera
  * Method:    n_getPixelFormat
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1getPixelFormat
+JNIEXPORT jint JNICALL Java_net_crimsonwoods_android_libs_uvccap_UVCCamera_n_1getPixelFormat
   (JNIEnv *env, jobject thiz, jlong handle)
 {
 	return uvcc_get_pixel_format(TO_HANDLE(handle));
 }
 
 /*
- * Class:     crimsonwoods_android_libs_uvccap_UVCCamera
+ * Class:     net_crimsonwoods_android_libs_uvccap_UVCCamera
  * Method:    n_getFrameSize
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1getFrameSize
+JNIEXPORT jint JNICALL Java_net_crimsonwoods_android_libs_uvccap_UVCCamera_n_1getFrameSize
   (JNIEnv *env, jobject thiz, jlong handle)
 {
 	return uvcc_get_frame_size(TO_HANDLE(handle));
 }
 
 /*
- * Class:     crimsonwoods_android_libs_uvccap_UVCCamera
+ * Class:     net_crimsonwoods_android_libs_uvccap_UVCCamera
  * Method:    n_getWidth
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1getWidth
+JNIEXPORT jint JNICALL Java_net_crimsonwoods_android_libs_uvccap_UVCCamera_n_1getWidth
   (JNIEnv *env, jobject thiz, jlong handle)
 {
 	return uvcc_get_frame_width(TO_HANDLE(handle));
 }
 
 /*
- * Class:     crimsonwoods_android_libs_uvccap_UVCCamera
+ * Class:     net_crimsonwoods_android_libs_uvccap_UVCCamera
  * Method:    n_getHeight
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1getHeight
+JNIEXPORT jint JNICALL Java_net_crimsonwoods_android_libs_uvccap_UVCCamera_n_1getHeight
   (JNIEnv *env, jobject thiz, jlong handle)
 {
 	return uvcc_get_frame_height(TO_HANDLE(handle));
 }
 
 /*
- * Class:     crimsonwoods_android_libs_uvccap_UVCCamera
+ * Class:     net_crimsonwoods_android_libs_uvccap_UVCCamera
  * Method:    n_open
  * Signature: (Ljava/lang/String;)J
  */
-JNIEXPORT jlong JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1open
+JNIEXPORT jlong JNICALL Java_net_crimsonwoods_android_libs_uvccap_UVCCamera_n_1open
   (JNIEnv *env, jobject thiz, jstring path)
 {
 	const char *nativePath;
@@ -82,11 +82,11 @@ JNIEXPORT jlong JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1open
 }
 
 /*
- * Class:     crimsonwoods_android_libs_uvccap_UVCCamera
+ * Class:     net_crimsonwoods_android_libs_uvccap_UVCCamera
  * Method:    n_init
  * Signature: (JIII)V
  */
-JNIEXPORT void JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1init
+JNIEXPORT void JNICALL Java_net_crimsonwoods_android_libs_uvccap_UVCCamera_n_1init
   (JNIEnv *env, jobject thiz, jlong handle, jint width, jint height, jint pixfmt)
 {
 	int result = NOERROR;
@@ -98,22 +98,22 @@ JNIEXPORT void JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1init
 }
 
 /*
- * Class:     crimsonwoods_android_libs_uvccap_UVCCamera
+ * Class:     net_crimsonwoods_android_libs_uvccap_UVCCamera
  * Method:    n_close
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1close
+JNIEXPORT void JNICALL Java_net_crimsonwoods_android_libs_uvccap_UVCCamera_n_1close
   (JNIEnv *env, jobject thiz, jlong handle)
 {
 	uvcc_close_video_device(TO_HANDLE(handle));
 }
 
 /*
- * Class:     crimsonwoods_android_libs_uvccap_UVCCamera
+ * Class:     net_crimsonwoods_android_libs_uvccap_UVCCamera
  * Method:    n_capture
  * Signature: (J[B)V
  */
-JNIEXPORT void JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1capture
+JNIEXPORT void JNICALL Java_net_crimsonwoods_android_libs_uvccap_UVCCamera_n_1capture
   (JNIEnv *env, jobject thiz, jlong handle, jbyteArray buf)
 {
 	jboolean isCopy = JNI_FALSE;
@@ -140,11 +140,11 @@ JNIEXPORT void JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1captur
 }
 
 /*
- * Class:     crimsonwoods_android_libs_uvccap_UVCCamera
+ * Class:     net_crimsonwoods_android_libs_uvccap_UVCCamera
  * Method:    n_start
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1start
+JNIEXPORT void JNICALL Java_net_crimsonwoods_android_libs_uvccap_UVCCamera_n_1start
   (JNIEnv *env, jobject thiz, jlong handle)
 {
 	int result = uvcc_start_capture(TO_HANDLE(handle));
@@ -154,22 +154,22 @@ JNIEXPORT void JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1start
 }
 
 /*
- * Class:     crimsonwoods_android_libs_uvccap_UVCCamera
+ * Class:     net_crimsonwoods_android_libs_uvccap_UVCCamera
  * Method:    n_stop
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1stop
+JNIEXPORT void JNICALL Java_net_crimsonwoods_android_libs_uvccap_UVCCamera_n_1stop
   (JNIEnv *env, jobject thiz, jlong handle)
 {
 	uvcc_stop_capture(TO_HANDLE(handle));
 }
 
 /*
- * Class:     crimsonwoods_android_libs_uvccap_UVCCamera
+ * Class:     net_crimsonwoods_android_libs_uvccap_UVCCamera
  * Method:    n_enumFrameSize
  * Signature: (JII)Lcrimsonwoods/android/libs/uvccap/UVCCamera/FrameSize;
  */
-JNIEXPORT jobject JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1enumFrameSize
+JNIEXPORT jobject JNICALL Java_net_crimsonwoods_android_libs_uvccap_UVCCamera_n_1enumFrameSize
   (JNIEnv *env, jobject thiz, jlong handle, jint index, jint pixfmt)
 {
 	uvcc_preview_size_t size;
@@ -177,7 +177,7 @@ JNIEXPORT jobject JNICALL Java_crimsonwoods_android_libs_uvccap_UVCCamera_n_1enu
 	if (err != NOERROR) {
 		return NULL;
 	}
-	jclass cls = (*env)->FindClass(env, "crimsonwoods/android/libs/uvccap/UVCCamera$FrameSize");
+	jclass cls = (*env)->FindClass(env, "net/crimsonwoods/android/libs/uvccap/UVCCamera$FrameSize");
 	if (NULL == cls) {
 		// ClassNotFoundException will throw by JVM.
 		return NULL;
